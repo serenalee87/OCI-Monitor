@@ -1,6 +1,6 @@
 # ☁️ OCI Monitor - 甲骨文云监控指挥中心
 
-自托管的 Oracle Cloud Infrastructure 监控服务，部署在本地 NAS 上，通过 Webhook 实时告警通知。
+自托管的甲骨文云监控服务，部署在本地 NAS 上，通过 Webhook 实时告警通知。
 
 ## ✨ 功能特性
 
