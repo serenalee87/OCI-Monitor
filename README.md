@@ -58,53 +58,23 @@ mkdir -p config && cp /path/to/key.pem config/oci_api_key.pem
 docker-compose up -d --build
 ```
 
----
-
-## 📋 docker-compose.yml 完整配置
-
-所有配置直接写在 `docker-compose.yml` 的 `environment` 中，无需额外的 `.env` 文件：
+### 方式三： 📋 docker-compose.yml 完整配置
 
 ```yaml
-version: "3.8"
-
 services:
   oci-monitor:
-    build: .
+    image: serenalee/oci-monitor:latest
     container_name: oci-monitor
     restart: unless-stopped
     ports:
       - "8199:8199"
     volumes:
-      # OCI config file and API key
       - ./config:/app/config:ro
-      # Persistent database
       - ./data:/app/data
     environment:
       - TZ=Asia/Shanghai
-      # ===== Web 面板 =====
-      - WEB_PORT=8199
-      - WEB_USERNAME=admin
-      - WEB_PASSWORD=changeme
-      # ===== OCI 认证（必填）=====
-      - OCI_TENANCY_OCID=ocid1.tenancy.oc1..aaaaaaaa...
-      - OCI_USER_OCID=ocid1.user.oc1..aaaaaaaa...
-      - OCI_FINGERPRINT=aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99
-      - OCI_REGION=ap-tokyo-1
-      # ===== Webhook 通知（可选）=====
-      # - WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
-      # - WEBHOOK_TYPE=custom          # custom/wecom/feishu/dingtalk
-      # ===== 监控参数（可选，有默认值）=====
-      # - MONITOR_INTERVAL=300          # 实例检查间隔（秒）
-      # - BILLING_CHECK_INTERVAL=3600   # 账单检查间隔（秒）
-      # - ALERT_CPU_THRESHOLD=85        # CPU 告警阈值 %
-      # - ALERT_MEMORY_THRESHOLD=90     # 内存告警阈值 %
-      # - ALERT_DISK_THRESHOLD=85       # 磁盘告警阈值 %
-      # - ALERT_BUDGET_LIMIT=0          # 预算上限（$）
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8199/login"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
+      - WEB_USERNAME=(自己修改)
+      - WEB_PASSWORD=(自己修改)
 ```
 
 ---
