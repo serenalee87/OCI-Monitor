@@ -12,12 +12,28 @@ services:
       - ./config:/app/config:ro
       # Persistent database
       - ./data:/app/data
-      # Environment file
-      - ./.env:/app/.env:ro
     environment:
       - TZ=Asia/Shanghai
+      # Web panel
+      - WEB_PORT=8199
       - WEB_USERNAME=admin
       - WEB_PASSWORD=changeme
+      # OCI credentials (fill in your own)
+      # - OCI_TENANCY_OCID=
+      # - OCI_USER_OCID=
+      # - OCI_FINGERPRINT=
+      # - OCI_REGION=ap-tokyo-1
+      # Webhook (optional)
+      # - WEBHOOK_URL=
+      # - WEBHOOK_TYPE=custom
+      # Monitor intervals (seconds)
+      # - MONITOR_INTERVAL=300
+      # - BILLING_CHECK_INTERVAL=3600
+      # Alert thresholds
+      # - ALERT_CPU_THRESHOLD=85
+      # - ALERT_MEMORY_THRESHOLD=90
+      # - ALERT_DISK_THRESHOLD=85
+      # - ALERT_BUDGET_LIMIT=0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8199/login"]
       interval: 60s
