@@ -1,6 +1,7 @@
 # ☁️ OCI Monitor - 甲骨文云监控指挥中心
 
 自托管的甲骨文云监控服务，部署在本地 NAS 上，通过 Webhook 实时告警通知。
+<img width="3840" height="2436" alt="image" src="https://github.com/user-attachments/assets/f8361e3d-9f94-4a0c-b8a3-abfbe2701fc0" />
 
 ## ✨ 功能特性
 
@@ -364,3 +365,6 @@ docker logs oci-monitor
 MIT
 
 ---
+
+## 🔗 Friendly Links
+[LINUX DO](https://linux.do/)
