@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  oci-monitor:
+    build: .
+    container_name: oci-monitor
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8199}:8199"
+    volumes:
+      # OCI config file and API key
+      - ./config:/app/config:ro
+      # Persistent database
+      - ./data:/app/data
+      # Environment file
+      - ./.env:/app/.env:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - WEB_USERNAME=admin
+      - WEB_PASSWORD=changeme
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8199/login"]
+      interval: 60s
+      timeout: 10s
+      retries: 3

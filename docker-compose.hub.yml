@@ -1,0 +1,15 @@
+services:
+  oci-monitor:
+    image: serenalee/oci-monitor:latest
+    container_name: oci-monitor
+    restart: unless-stopped
+    ports:
+      - "8123:8199"
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - WEB_USERNAME=admin
+      - WEB_PASSWORD=changeme

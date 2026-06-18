@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCI Monitor - Login</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+    --cyan:#00f0ff;--purple:#a855f7;--magenta:#ec4899;--green:#00ff88;--red:#ff4466;--gold:#fbbf24;
+    --bg:#050810;--card:rgba(12,18,35,0.85);--border:rgba(0,240,255,0.1);
+    --text:#e8edf5;--text2:#8b9cc0;--text3:#4a5a7a;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
+    display:flex;align-items:center;justify-content:center;}
+
+/* ===== BACKGROUND ===== */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;}
+.bg-grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(0,240,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,240,255,0.025) 1px,transparent 1px);
+    background-size:80px 80px;animation:gridScroll 30s linear infinite;}
+@keyframes gridScroll{0%{transform:translate(0,0)}100%{transform:translate(80px,80px)}}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(100px);animation:orbFloat 10s ease-in-out infinite;}
+.bg-orb.o1{width:500px;height:500px;background:rgba(0,240,255,0.05);top:-10%;left:20%;}
+.bg-orb.o2{width:400px;height:400px;background:rgba(168,85,247,0.05);bottom:5%;right:15%;animation-delay:4s;}
+.bg-orb.o3{width:300px;height:300px;background:rgba(236,72,153,0.03);top:50%;left:60%;animation-delay:7s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-30px)}}
+.particle{position:absolute;width:2px;height:2px;background:var(--cyan);border-radius:50%;opacity:0;animation:pFly linear infinite;}
+@keyframes pFly{0%{opacity:0;transform:translateY(100vh)}10%{opacity:.7}90%{opacity:.7}100%{opacity:0;transform:translateY(-10vh)}}
+
+/* ===== SCANLINE EFFECT ===== */
+body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.008) 2px,rgba(0,240,255,0.008) 4px);}
+
+/* ===== LOGIN CONTAINER ===== */
+.login-wrap{position:relative;z-index:1;width:100%;max-width:420px;padding:20px;}
+.login-card{padding:48px 40px 40px;border-radius:24px;background:var(--card);border:1px solid var(--border);
+    backdrop-filter:blur(30px);position:relative;overflow:hidden;
+    box-shadow:0 25px 80px -20px rgba(0,0,0,.6),0 0 60px rgba(0,240,255,.06),inset 0 1px 0 rgba(255,255,255,.06);}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),transparent);opacity:.7;}
+.login-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,240,255,0.15),transparent);}
+
+/* ===== LOGO ===== */
+.logo-area{text-align:center;margin-bottom:36px;}
+.logo-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--cyan),var(--purple));
+    display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;
+    box-shadow:0 0 40px rgba(0,240,255,0.3);animation:logoPulse 3s ease-in-out infinite;}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 40px rgba(0,240,255,0.3)}50%{box-shadow:0 0 60px rgba(0,240,255,0.5)}}
+.logo-area h1{font-family:'Orbitron',monospace;font-size:18px;font-weight:800;letter-spacing:4px;
+    background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-area .sub{font-size:10px;color:var(--text3);letter-spacing:5px;margin-top:6px;font-family:'Orbitron',monospace;}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:20px;position:relative;}
+.form-group label{display:block;font-family:'Orbitron',monospace;font-size:10px;color:var(--text3);
+    letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
+.input-wrap{position:relative;}
+.input-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text3);
+    transition:color .3s;pointer-events:none;}
+input[type="text"],input[type="password"]{width:100%;padding:14px 16px 14px 44px;border-radius:12px;border:1px solid var(--border);
+    background:rgba(255,255,255,.03);color:var(--text);font-size:14px;font-family:'Inter',sans-serif;
+    outline:none;transition:all .3s;letter-spacing:1px;}
+input:focus{border-color:rgba(0,240,255,.3);box-shadow:0 0 20px rgba(0,240,255,.08),inset 0 0 20px rgba(0,240,255,.02);}
+input:focus~.icon,input:focus+.icon{color:var(--cyan);}
+input::placeholder{color:var(--text3);letter-spacing:1px;}
+
+/* ===== TOGGLE PASSWORD ===== */
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:var(--text3);cursor:pointer;font-size:16px;padding:4px;transition:color .3s;}
+.pw-toggle:hover{color:var(--cyan);}
+
+/* ===== ERROR ===== */
+.error-msg{display:none;padding:12px 16px;border-radius:10px;margin-bottom:16px;
+    background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);
+    color:var(--red);font-size:13px;letter-spacing:.5px;text-align:center;animation:shakeError .4s ease;}
+@keyframes shakeError{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ===== BUTTON ===== */
+.login-btn{width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;
+    font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:3px;
+    background:linear-gradient(135deg,rgba(0,240,255,.15),rgba(168,85,247,.15));
+    color:var(--cyan);position:relative;overflow:hidden;transition:all .4s;
+    box-shadow:0 0 25px rgba(0,240,255,.1),inset 0 0 25px rgba(0,240,255,.03);
+    border:1px solid rgba(0,240,255,.25);}
+.login-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transition:left .6s;}
+.login-btn:hover{box-shadow:0 0 50px rgba(0,240,255,.2),0 8px 30px rgba(0,0,0,.3);border-color:rgba(0,240,255,.4);
+    transform:translateY(-2px);text-shadow:0 0 20px rgba(0,240,255,.5);}
+.login-btn:hover::before{left:100%;}
+.login-btn:active{transform:translateY(2px) scale(.98);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.login-btn .spinner{display:none;width:18px;height:18px;border:2px solid transparent;border-top:2px solid var(--cyan);
+    border-radius:50%;animation:spin .6s linear infinite;margin:0 auto;}
+.login-btn.loading .btn-text{display:none;}
+.login-btn.loading .spinner{display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;margin-top:24px;}
+.footer .powered{font-family:'Orbitron',monospace;font-size:9px;color:var(--text3);letter-spacing:3px;}
+</style>
+</head>
+<body>
+
+<div class="bg">
+    <div class="bg-grid"></div>
+    <div class="bg-orb o1"></div>
+    <div class="bg-orb o2"></div>
+    <div class="bg-orb o3"></div>
+</div>
+
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="logo-area">
+            <div class="logo-icon">&#x1F680;</div>
+            <h1>OCI MONITOR</h1>
+            <div class="sub">SYSTEM ACCESS</div>
+        </div>
+
+        {% if error %}
+        <div class="error-msg" id="error" style="display:block;">{{ error }}</div>
+        {% else %}
+        <div class="error-msg" id="error"></div>
+        {% endif %}
+
+        <form method="POST" action="/login" id="loginForm">
+            <div class="form-group">
+                <label>USERNAME</label>
+                <div class="input-wrap">
+                    <span class="icon">&#x1F464;</span>
+                    <input type="text" name="username" id="username" placeholder="Enter username" autocomplete="username" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>PASSWORD</label>
+                <div class="input-wrap">
+                    <span class="icon">&#x1F512;</span>
+                    <input type="password" name="password" id="password" placeholder="Enter password" autocomplete="current-password" required>
+                    <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">&#x1F441;</button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="btn-text">AUTHENTICATE</span>
+                <span class="spinner"></span>
+            </button>
+        </form>
+
+        <div class="footer">
+            <div class="powered">SECURED ACCESS</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Particles
+(function(){
+    const bg=document.querySelector('.bg');
+    for(let i=0;i<30;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        p.style.left=Math.random()*100+'%';
+        p.style.animationDuration=(8+Math.random()*12)+'s';
+        p.style.animationDelay=Math.random()*10+'s';
+        p.style.width=p.style.height=(1+Math.random()*2)+'px';
+        bg.appendChild(p);
+    }
+})();
+
+// Password toggle
+document.getElementById('pwToggle').addEventListener('click',function(){
+    const pw=document.getElementById('password');
+    if(pw.type==='password'){pw.type='text';this.innerHTML='&#x1F441;&#xFE0E;';}
+    else{pw.type='password';this.innerHTML='&#x1F441;';}
+});
+
+// Form submit animation
+document.getElementById('loginForm').addEventListener('submit',function(){
+    const btn=document.getElementById('loginBtn');
+    btn.classList.add('loading');
+    btn.disabled=true;
+});
+
+// Show error with animation
+(function(){
+    const err=document.getElementById('error');
+    if(err.textContent.trim()){
+        err.style.display='block';
+        // Auto-hide after 5s
+        setTimeout(function(){err.style.display='none';},5000);
+    }
+})();
+</script>
+</body>
+</html>
