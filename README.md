@@ -32,7 +32,7 @@ cd ~/oci-monitor
 curl -O https://raw.githubusercontent.com/serenalee87/OCI-Monitor/main/docker-compose.hub.yml
 mv docker-compose.hub.yml docker-compose.yml
 
-# 3. 编辑 docker-compose.yml，填入你的 OCI 配置
+# 3. 编辑 docker-compose.yml，修改用户名密码
 nano docker-compose.yml
 
 # 4. 放入 OCI API 私钥
@@ -43,22 +43,22 @@ chmod 600 config/oci_api_key.pem
 docker-compose up -d
 ```
 
-访问 `http://<NAS-IP>:8199`
-
 ### 方式二：本地构建
 
 ```bash
 git clone https://github.com/serenalee87/OCI-Monitor.git
 cd oci-monitor
 
-# 编辑 docker-compose.yml 填入配置，放入私钥
+# 放入私钥，修改 compose 中的用户名密码
 mkdir -p config && cp /path/to/key.pem config/oci_api_key.pem
 
 # 构建并启动
 docker-compose up -d --build
 ```
 
-### 方式三： 📋 docker-compose.yml 完整配置
+---
+
+## 📋 docker-compose.yml
 
 ```yaml
 services:
@@ -73,8 +73,29 @@ services:
       - ./data:/app/data
     environment:
       - TZ=Asia/Shanghai
-      - WEB_USERNAME=(自己修改)
-      - WEB_PASSWORD=(自己修改)
+      - WEB_USERNAME=admin
+      - WEB_PASSWORD=changeme
+```
+
+启动后访问 `http://<NAS-IP>:8199`，首次登录面板即可配置 OCI 认证、Webhook、监控参数等。
+
+### 可选：通过 compose 预配置
+
+如果你更喜欢在 compose 里写死配置，也可以添加更多环境变量：
+
+```yaml
+    environment:
+      - TZ=Asia/Shanghai
+      - WEB_USERNAME=admin
+      - WEB_PASSWORD=changeme
+      # OCI 认证（也可以在面板填写）
+      - OCI_TENANCY_OCID=ocid1.tenancy.oc1..aaaaaaaa...
+      - OCI_USER_OCID=ocid1.user.oc1..aaaaaaaa...
+      - OCI_FINGERPRINT=aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99
+      - OCI_REGION=ap-tokyo-1
+      # Webhook（也可以在面板填写）
+      # - WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
+      # - WEBHOOK_TYPE=wecom
 ```
 
 ---
