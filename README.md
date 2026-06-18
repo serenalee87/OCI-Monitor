@@ -29,39 +29,82 @@ mkdir -p ~/oci-monitor/config ~/oci-monitor/data
 cd ~/oci-monitor
 
 # 2. 下载 compose 文件
-curl -O https://raw.githubusercontent.com/serenalee/oci-monitor/main/docker-compose.hub.yml
+curl -O https://raw.githubusercontent.com/serenalee87/OCI-Monitor/main/docker-compose.hub.yml
 mv docker-compose.hub.yml docker-compose.yml
 
-# 3. 创建 .env 文件并填入配置（⚠️ 必须在 docker-compose up 之前完成！）
-cp .env.example .env
-nano .env
+# 3. 编辑 docker-compose.yml，填入你的 OCI 配置
+nano docker-compose.yml
 
 # 4. 放入 OCI API 私钥
 cp /path/to/your/oci_api_key.pem config/oci_api_key.pem
 chmod 600 config/oci_api_key.pem
 
-# 5. 确认文件就绪后再启动
-ls -la .env          # 必须显示 -rw-r--r--（文件），不能是 drwxr-xr-x（目录）
+# 5. 启动
 docker-compose up -d
 ```
 
-> ⚠️ **重要提醒**：`.env` 文件必须在 `docker-compose up` **之前**创建好。如果 `.env` 不存在，Docker 会自动创建一个**同名目录**，导致配置无法读取。如果已经错误创建了目录，先 `rm -rf .env` 再重新创建文件。
-
-访问 `http://<NAS-IP>:8123`
+访问 `http://<NAS-IP>:8199`
 
 ### 方式二：本地构建
 
 ```bash
-git clone https://github.com/serenalee/oci-monitor.git
+git clone https://github.com/serenalee87/OCI-Monitor.git
 cd oci-monitor
 
-# 配置 .env 和私钥（同上）
-cp .env.example .env
-nano .env
+# 编辑 docker-compose.yml 填入配置，放入私钥
 mkdir -p config && cp /path/to/key.pem config/oci_api_key.pem
 
 # 构建并启动
 docker-compose up -d --build
+```
+
+---
+
+## 📋 docker-compose.yml 完整配置
+
+所有配置直接写在 `docker-compose.yml` 的 `environment` 中，无需额外的 `.env` 文件：
+
+```yaml
+version: "3.8"
+
+services:
+  oci-monitor:
+    build: .
+    container_name: oci-monitor
+    restart: unless-stopped
+    ports:
+      - "8199:8199"
+    volumes:
+      # OCI config file and API key
+      - ./config:/app/config:ro
+      # Persistent database
+      - ./data:/app/data
+    environment:
+      - TZ=Asia/Shanghai
+      # ===== Web 面板 =====
+      - WEB_PORT=8199
+      - WEB_USERNAME=admin
+      - WEB_PASSWORD=changeme
+      # ===== OCI 认证（必填）=====
+      - OCI_TENANCY_OCID=ocid1.tenancy.oc1..aaaaaaaa...
+      - OCI_USER_OCID=ocid1.user.oc1..aaaaaaaa...
+      - OCI_FINGERPRINT=aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99
+      - OCI_REGION=ap-tokyo-1
+      # ===== Webhook 通知（可选）=====
+      # - WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
+      # - WEBHOOK_TYPE=custom          # custom/wecom/feishu/dingtalk
+      # ===== 监控参数（可选，有默认值）=====
+      # - MONITOR_INTERVAL=300          # 实例检查间隔（秒）
+      # - BILLING_CHECK_INTERVAL=3600   # 账单检查间隔（秒）
+      # - ALERT_CPU_THRESHOLD=85        # CPU 告警阈值 %
+      # - ALERT_MEMORY_THRESHOLD=90     # 内存告警阈值 %
+      # - ALERT_DISK_THRESHOLD=85       # 磁盘告警阈值 %
+      # - ALERT_BUDGET_LIMIT=0          # 预算上限（$）
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8199/login"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
 ```
 
 ---
@@ -82,15 +125,15 @@ docker-compose up -d --build
 
 ### 第三步：记录配置信息
 
-从配置示例中提取：
+从配置示例中提取，填入 `docker-compose.yml` 的 `environment`：
 
-| 字段 | .env 变量 | 说明 |
+| 字段 | 环境变量 | 说明 |
 |------|-----------|------|
 | user | `OCI_USER_OCID` | ocid1.user.oc1.. |
 | fingerprint | `OCI_FINGERPRINT` | aa:bb:cc:dd:... |
 | tenancy | `OCI_TENANCY_OCID` | ocid1.tenancy.oc1.. |
 | region | `OCI_REGION` | ap-osaka-1 等 |
-| key_file | `OCI_KEY_FILE` | /app/config/oci_api_key.pem |
+| key_file | `OCI_KEY_FILE` | 默认 /app/config/oci_api_key.pem，无需修改 |
 
 ### 第四步：确认 Region
 
@@ -111,30 +154,30 @@ docker-compose up -d --build
 
 ### 企业微信机器人
 
-```env
-WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
-WEBHOOK_TYPE=wecom
+```yaml
+- WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
+- WEBHOOK_TYPE=wecom
 ```
 
 ### 飞书机器人
 
-```env
-WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_HOOK_ID
-WEBHOOK_TYPE=feishu
+```yaml
+- WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_HOOK_ID
+- WEBHOOK_TYPE=feishu
 ```
 
 ### 钉钉机器人
 
-```env
-WEBHOOK_URL=https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN
-WEBHOOK_TYPE=dingtalk
+```yaml
+- WEBHOOK_URL=https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN
+- WEBHOOK_TYPE=dingtalk
 ```
 
 ### 自定义 Webhook
 
-```env
-WEBHOOK_URL=https://your-endpoint.com/alert
-WEBHOOK_TYPE=custom
+```yaml
+- WEBHOOK_URL=https://your-endpoint.com/alert
+- WEBHOOK_TYPE=custom
 ```
 
 发送格式：
@@ -220,11 +263,11 @@ environment:
 3. 填入 Tenancy OCID、User OCID、Fingerprint、Region、私钥路径
 4. 确认添加
 
-### 通过 .env 配置（单账号）
+### 通过 docker-compose 配置（单账号）
 
-在 `.env` 中填入 OCI 认证信息即可，面板会自动使用。
+在 `docker-compose.yml` 的 `environment` 中填入 OCI 认证信息即可，面板会自动使用。
 
-**优先级**：面板添加的账号 > .env 默认配置
+**优先级**：面板添加的账号 > docker-compose 默认配置
 
 ---
 
@@ -261,11 +304,10 @@ environment:
 
 ```
 oci-monitor/
-├── docker-compose.yml          # Docker Compose 配置
+├── docker-compose.yml          # Docker Compose 配置（所有配置在此）
+├── docker-compose.hub.yml      # Docker Hub 版 compose
 ├── Dockerfile                  # 镜像构建文件
 ├── requirements.txt            # Python 依赖
-├── .env                        # 环境变量（需创建）
-├── .env.example                # 环境变量模板
 ├── README.md                   # 本文件
 │
 ├── config/
@@ -330,9 +372,9 @@ docker logs oci-monitor
 
 ### Q: OCI 连接失败
 
-1. 确认 `.env` 中的配置正确
+1. 确认 `docker-compose.yml` 中 OCI 认证信息填写正确
 2. 确认私钥文件已放入 `config/` 目录
-3. 确认文件路径与 `.env` 中 `OCI_KEY_FILE` 一致
+3. 确认 `OCI_KEY_FILE` 路径与私钥实际路径一致
 
 ### Q: 不产生费用告警
 
