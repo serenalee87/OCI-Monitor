@@ -21,7 +21,7 @@
 
 ## 🚀 快速开始
 
-### 方式一：Docker Hub 拉取（推荐）
+### 方式一：Docker Hub 拉取
 
 ```bash
 # 1. 创建项目目录
@@ -58,7 +58,7 @@ docker-compose up -d --build
 
 ---
 
-## 📋 docker-compose.yml
+### 📋 docker-compose.yml（推荐）
 
 ```yaml
 services:
@@ -79,24 +79,6 @@ services:
 
 启动后访问 `http://<NAS-IP>:8199`，首次登录面板即可配置 OCI 认证、Webhook、监控参数等。
 
-### 可选：通过 compose 预配置
-
-如果你更喜欢在 compose 里写死配置，也可以添加更多环境变量：
-
-```yaml
-    environment:
-      - TZ=Asia/Shanghai
-      - WEB_USERNAME=admin
-      - WEB_PASSWORD=changeme
-      # OCI 认证（也可以在面板填写）
-      - OCI_TENANCY_OCID=ocid1.tenancy.oc1..aaaaaaaa...
-      - OCI_USER_OCID=ocid1.user.oc1..aaaaaaaa...
-      - OCI_FINGERPRINT=aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99
-      - OCI_REGION=ap-tokyo-1
-      # Webhook（也可以在面板填写）
-      # - WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY
-      # - WEBHOOK_TYPE=wecom
-```
 
 ---
 
@@ -373,7 +355,7 @@ docker logs oci-monitor
 
 ### Q: 免费套餐显示超标
 
-这是预期行为——你的 ARM 实例是 4 OCPU/24 GB（老配置），新限制是 2 OCPU/12 GB。系统仅展示信息，不会自动降配。
+这是预期行为——ARM 实例是 4 OCPU/24 GB（老配置），新限制是 2 OCPU/12 GB。系统仅展示信息，不会自动降配。
 
 ---
 
@@ -382,10 +364,3 @@ docker logs oci-monitor
 MIT
 
 ---
-
-## 🙏 致谢
-
-- [Oracle Cloud Infrastructure](https://www.oracle.com/cloud/) - 甲骨文云
-- [OCI Python SDK](https://github.com/oracle/oci-python-sdk) - 官方 SDK
-- [FastAPI](https://fastapi.tiangolo.com/) - Web 框架
-- [APScheduler](https://apscheduler.readthedocs.io/) - 任务调度
